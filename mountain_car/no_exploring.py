@@ -1,7 +1,13 @@
 import gym
 import numpy as np
+from gym.wrappers import Monitor
+
+def record(episode):
+    return episode % 500 == 0
+
 
 env = gym.make("MountainCar-v0")
+env = Monitor(env, "recording_no_exploring", video_callable=record, force=True)
 
 # number of position (state[0]) and velocity (state[1]) buckets in q table
 DISCRETE_OS_SIZE = [20, 20]
@@ -33,18 +39,17 @@ DISCOUNT = 0.95
 EPISODES = 25000
 SHOW_EVERY = 500
 
-# environment backups
-
 # run training
 for episode in range(EPISODES):
-    discrete_state = get_discrete_state(env.reset())
-    done = False
 
     if episode % SHOW_EVERY == 0:
         render = True
         print(episode)
     else:
         render = False
+
+    discrete_state = get_discrete_state(env.reset())
+    done = False
 
     # individual episode
     while not done:
@@ -75,4 +80,4 @@ for episode in range(EPISODES):
 
         discrete_state = new_discrete_state
 
-    env.close()
+env.close()
