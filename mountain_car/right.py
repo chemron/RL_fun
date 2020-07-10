@@ -9,7 +9,7 @@ print(env.action_space.n)
 env.reset()
 
 # render
-for i in range(200):
+for i in range(1000):
     action = 2  # go right
     env.step(action)
     env.render()

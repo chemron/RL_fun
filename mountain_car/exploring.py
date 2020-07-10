@@ -1,6 +1,7 @@
 import gym
 import numpy as np
 from gym.wrappers import Monitor
+# import matplotlib.pyplot as plt
 
 # hyperparemeters
 LEARNING_RATE = 0.1
@@ -12,6 +13,7 @@ SHOW_EVERY = 100
 # stats
 ep_rewards = []
 aggr_ep_rewards = {"ep": [], "avg": [], "max": [], "min": []}
+STATS_EVERY = 100
 
 
 def record(episode):
@@ -42,12 +44,13 @@ def get_discrete_state(state):
 
 
 for episode in range(EPISODES):
+    # reset
     discrete_state = get_discrete_state(env.reset())
     done = False
+    episode_reward = 0
 
     if episode % SHOW_EVERY == 0:
         render = True
-        print(episode)
     else:
         render = False
 
@@ -61,6 +64,7 @@ for episode in range(EPISODES):
             action = np.random.randint(0, env.action_space.n)
 
         new_state, reward, done, _ = env.step(action)
+        episode_reward += reward
 
         new_discrete_state = get_discrete_state(new_state)
 
@@ -97,5 +101,22 @@ for episode in range(EPISODES):
     # within decaying range
     if END_EPSILON_DECAYING >= episode >= START_EPSILON_DECAYING:
         epsilon -= epsilon_decay_value
+
+    ep_rewards.append(episode_reward)
+    if episode % STATS_EVERY == 0:
+        reward_batch = ep_rewards[-STATS_EVERY:]
+        average_reward = sum(reward_batch)/STATS_EVERY
+        aggr_ep_rewards["ep"].append(episode)
+        aggr_ep_rewards["avg"].append(average_reward)
+        aggr_ep_rewards["max"].append(max(reward_batch))
+        aggr_ep_rewards["min"].append(min(reward_batch))
+        print(f'Episode: {episode:>5d}, Average reward: {average_reward:>6.1f}'
+              f', Current epsilon: {epsilon:>1.2f}')
+
+# plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['avg'], label="average rewards")
+# plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['max'], label="max rewards")
+# plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['min'], label="min rewards")
+# plt.legend(loc=4)
+# plt.show()
 
 env.close()
