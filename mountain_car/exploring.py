@@ -1,7 +1,7 @@
 import gym
 import numpy as np
 from gym.wrappers import Monitor
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 # hyperparemeters
 LEARNING_RATE = 0.1
@@ -43,7 +43,7 @@ def get_discrete_state(state):
     return tuple(discrete_state.astype(np.int))
 
 
-for episode in range(EPISODES):
+for episode in range(EPISODES + 1):
     # reset
     discrete_state = get_discrete_state(env.reset())
     done = False
@@ -113,10 +113,20 @@ for episode in range(EPISODES):
         print(f'Episode: {episode:>5d}, Average reward: {average_reward:>6.1f}'
               f', Current epsilon: {epsilon:>1.2f}')
 
-# plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['avg'], label="average rewards")
-# plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['max'], label="max rewards")
-# plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['min'], label="min rewards")
-# plt.legend(loc=4)
-# plt.show()
+    if episode % 10 == 0:
+        np.save(f'qtables/qtable_{episode:0>5d}', q_table)
+
+plt.plot(aggr_ep_rewards['ep'],
+         aggr_ep_rewards['avg'],
+         label="average rewards")
+plt.plot(aggr_ep_rewards['ep'],
+         aggr_ep_rewards['max'],
+         label="max rewards")
+plt.plot(aggr_ep_rewards['ep'],
+         aggr_ep_rewards['min'],
+         label="min rewards")
+plt.legend(loc=4)
+plt.xlim((100, EPISODES))
+plt.show()
 
 env.close()
